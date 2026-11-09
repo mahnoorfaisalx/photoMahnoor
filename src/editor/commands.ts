@@ -70,7 +70,12 @@ export function isTyping(e: KeyboardEvent) {
   const t = e.target as HTMLElement;
   if (!t) return false;
   const tag = t.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable) {
+  if (tag === 'INPUT') {
+    const type = (t as HTMLInputElement).type;
+    if (['range', 'checkbox', 'radio', 'color', 'button'].includes(type)) return false;
+    return true;
+  }
+  if (tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable) {
     // fabric's hidden textarea while editing text
     return true;
   }

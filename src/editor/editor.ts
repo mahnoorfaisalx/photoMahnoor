@@ -7,7 +7,7 @@ import {
   Rect,
   Ellipse,
   Path,
-  Textbox,
+  IText,
   Group,
   Circle,
   FabricText,
@@ -179,7 +179,7 @@ class EditorCanvas extends Canvas {
     // crop mask
     const crop = ed.cropRect;
     if (crop) {
-      const b = crop.getBoundingRect();
+      const b = ed.cropBox();
       const cx = x + b.left * z,
         cy = y + b.top * z;
       const cw = b.width * z,
@@ -426,7 +426,7 @@ export class Editor {
     const o = this.store.options;
     const c = at ?? this.docCenter();
     const fontSize = Math.max(12, Math.round(Math.min(this.doc.width, this.doc.height) / 12)) || o.fontSize;
-    const t = new Textbox(text, {
+    const t = new IText(text, {
       left: c.x,
       top: c.y,
       originX: 'center',
@@ -434,9 +434,7 @@ export class Editor {
       fontFamily: o.fontFamily,
       fontSize,
       fill: '#111111',
-      width: Math.max(200, Math.min(this.doc.width * 0.8, fontSize * text.length * 0.6)),
       textAlign: 'center',
-      splitByGrapheme: false,
       ...extra,
     }) as unknown as AnyObj;
     if (extra.shadow && !(extra.shadow instanceof Shadow)) t.shadow = new Shadow(extra.shadow as any);
@@ -1543,7 +1541,7 @@ export class Editor {
       this.canvas.uniformScaling = false;
     } else {
       const [aw, ah] = aspect.split(':').map(Number);
-      const b = r.getBoundingRect();
+      const b = this.cropBox();
       let w = b.width,
         h = (b.width * ah) / aw;
       if (h > this.doc.height) {
@@ -1565,10 +1563,16 @@ export class Editor {
   applyCrop() {
     const r = this.cropRect;
     if (!r) return;
-    const b = r.getBoundingRect();
+    const b = this.cropBox();
     this.cancelCrop();
     this.cropDocument(b.left, b.top, b.width, b.height);
     useStore.getState().setTool('select');
+  }
+
+  /** crop rectangle in doc coordinates (stroke excluded) */
+  cropBox() {
+    const r = this.cropRect!;
+    return { left: r.left || 0, top: r.top || 0, width: (r.width || 0) * (r.scaleX || 1), height: (r.height || 0) * (r.scaleY || 1) };
   }
 
   cancelCrop() {
