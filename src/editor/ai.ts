@@ -54,8 +54,21 @@ export async function removeBackgroundBlob(blob: Blob, engine: BgEngine): Promis
       return { blob: out, engine: 'ai' };
     } catch (e) {
       console.warn('AI background removal failed, using quick fallback', e);
-      aiFailed = true;
-      useStore.getState().toast('AI model unavailable (offline or blocked) – used quick colour-based removal instead', 'error');
+      const err = e as Error;
+      if (err?.name === 'AINotIncluded') {
+        // single-file preview build: the model runtime is not bundled, don't try again
+        aiFailed = true;
+        useStore.getState().toast(
+          'This preview build does not include the AI model. Run the full app (npm run dev) for AI background removal. Used quick removal instead.',
+          'error',
+        );
+      } else {
+        // network / CDN problem: tell the user why and retry next time
+        useStore.getState().toast(
+          `Could not load the AI model from staticimgly.com (offline, firewall or ad-blocker?). Used quick removal instead. Details: ${err?.message || err}`,
+          'error',
+        );
+      }
     }
   }
   const out = await quickRemoveBackground(blob);
