@@ -905,15 +905,31 @@ export class Editor {
     }
   }
 
+  private pendingAdjust: { imgs: (FabricImage & AnyObj)[]; adj: Partial<Adjustments> } | null = null;
+  private adjustFrame = 0;
+
   setAdjust(adj: Partial<Adjustments>, commit: 'now' | 'debounce' = 'debounce', targets?: AnyObj[]) {
     const imgs = (targets ?? this.expandSelection()).filter((o) => o instanceof FabricImage) as (FabricImage & AnyObj)[];
-    for (const img of imgs) {
-      applyAdjustments(img, { ...normalizeAdjust(img.adjust), ...adj });
-    }
-    this.canvas.requestRenderAll();
+    // record values immediately so the UI reflects them, apply the (expensive) filters once per frame
+    for (const img of imgs) img.adjust = { ...normalizeAdjust(img.adjust), ...adj };
+    this.pendingAdjust = { imgs, adj: { ...(this.pendingAdjust?.adj || {}), ...adj } };
+    const flush = () => {
+      this.adjustFrame = 0;
+      const p = this.pendingAdjust;
+      this.pendingAdjust = null;
+      if (!p) return;
+      for (const img of p.imgs) applyAdjustments(img, img.adjust || {});
+      this.canvas.requestRenderAll();
+    };
     this.bumpSel();
-    if (commit === 'now') this.commit('Adjust');
-    else this.commitDebounced();
+    if (commit === 'now') {
+      cancelAnimationFrame(this.adjustFrame);
+      flush();
+      this.commit('Adjust');
+    } else {
+      if (!this.adjustFrame) this.adjustFrame = requestAnimationFrame(flush);
+      this.commitDebounced();
+    }
   }
 
   resetAdjust() {
