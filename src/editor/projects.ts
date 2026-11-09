@@ -101,7 +101,24 @@ export async function openProjectFile(file: File) {
   editor.setDoc({ name: data.doc?.name || file.name.replace(/\.[^.]+$/, '') }, false);
 }
 
-export function downloadBlob(blob: Blob, name: string) {
+/** Inside a claude.ai artifact viewer, plain downloads are blocked; use its downloads capability. */
+async function hostDownload(blob: Blob, name: string): Promise<boolean> {
+  const c = (window as any).claude;
+  if (!c?.use) return false;
+  try {
+    const dl = await c.use('downloads');
+    if (!dl) return false;
+    const filename = name.endsWith('.pmproj') ? name + '.json' : name;
+    await dl.save({ filename, data: blob });
+    return true;
+  } catch (e: any) {
+    if (e?.code === 'declined') return true;
+    return false;
+  }
+}
+
+export async function downloadBlob(blob: Blob, name: string) {
+  if (await hostDownload(blob, name)) return;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;

@@ -1,4 +1,4 @@
-import { getItem, setItem } from '../lib/storage';
+import { getItem, setItem, confirmAction } from '../lib/storage';
 import { useEffect, useMemo, useState } from 'react';
 import { editor } from '../editor/editor';
 import { useStore } from '../store';
@@ -75,7 +75,7 @@ function NewDialog({ onClose }: { onClose: () => void }) {
   const [transparent, setTransparent] = useState(false);
   const [name, setName] = useState('Untitled');
   const create = (W = w, H = h, n = name) => {
-    if (useStore.getState().dirty && editor.objects().length && !confirm('Discard unsaved changes in the current document?')) return;
+    if (useStore.getState().dirty && editor.objects().length && !confirmAction('Discard unsaved changes in the current document?')) return;
     editor.newDocument(W, H, transparent ? null : bg, n);
     onClose();
   };
@@ -454,7 +454,7 @@ function ProjectsDialog({ onClose }: { onClose: () => void }) {
       {items && !items.length && <div className="muted">No saved projects yet. Use File → Save to library (Ctrl+S). Projects also autosave while you work.</div>}
       <div className="project-grid">
         {items?.map((p) => (
-          <ProjectCard key={p.id} p={p} onOpen={async () => { await openFromLibrary(p.id); onClose(); }} onDelete={async () => { if (confirm(`Delete "${p.name}"?`)) { await deleteFromLibrary(p.id); setItems(await listProjects()); } }} />
+          <ProjectCard key={p.id} p={p} onOpen={async () => { await openFromLibrary(p.id); onClose(); }} onDelete={async () => { if (confirmAction(`Delete "${p.name}"?`)) { await deleteFromLibrary(p.id); setItems(await listProjects()); } }} />
         ))}
       </div>
     </Modal>

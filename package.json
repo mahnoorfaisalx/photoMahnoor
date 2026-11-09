@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:e2e": "node tests/e2e.cjs"
+    "test:e2e": "node tests/e2e.cjs",
+    "build:single": "vite build --config vite.single.config.ts"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",
@@ -26,6 +27,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
     "typescript": "~7.0.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.6",
+    "vite-plugin-singlefile": "^2.3.4"
   }
 }

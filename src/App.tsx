@@ -1,3 +1,4 @@
+import { confirmAction } from './lib/storage';
 import { useEffect, useRef, useState } from 'react';
 import { editor } from './editor/editor';
 import { useStore } from './store';
@@ -113,7 +114,7 @@ function Welcome() {
             <h3>Recent projects</h3>
             <div className="project-grid">
               {projects.slice(0, 8).map((p) => (
-                <ProjectCard key={p.id} p={p} onOpen={() => openFromLibrary(p.id)} onDelete={async () => { if (confirm(`Delete "${p.name}"?`)) { await deleteFromLibrary(p.id); setProjects(await listProjects()); } }} />
+                <ProjectCard key={p.id} p={p} onOpen={() => openFromLibrary(p.id)} onDelete={async () => { if (confirmAction(`Delete "${p.name}"?`)) { await deleteFromLibrary(p.id); setProjects(await listProjects()); } }} />
               ))}
             </div>
           </>

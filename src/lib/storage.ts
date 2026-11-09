@@ -13,3 +13,13 @@ export function setItem(key: string, value: string) {
     /* ignore */
   }
 }
+
+/** window.confirm, but treated as "yes" inside hosts that suppress dialogs (e.g. sandboxed previews). */
+export function confirmAction(message: string): boolean {
+  if ((window as any).claude) return true;
+  try {
+    return window.confirm(message);
+  } catch {
+    return true;
+  }
+}

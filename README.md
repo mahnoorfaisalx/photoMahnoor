@@ -193,6 +193,8 @@ tests/e2e.cjs       Playwright end-to-end workflow test
 
 ## Deployment
 
+**Single-file build**: `npm run build:single` writes the whole app into one self-contained `dist-single/index.html` (about 0.8 MB) that you can open straight from disk or share. To keep the file small, this build leaves out the AI model runtime, so background removal uses the quick offline engine.
+
 The output of `npm run build` is static. The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that builds the app and publishes it to **GitHub Pages** whenever you push to `main`, or when you run the workflow manually. To turn it on, go to *Settings → Pages* and set **Source** to "GitHub Actions". No other accounts or secrets are needed.
 
 ---
