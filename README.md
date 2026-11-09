@@ -61,6 +61,7 @@ npm run build && npm run test:e2e
 * Custom canvas sizes, plus about 20 built-in presets (Instagram, Story, YouTube thumbnail, A4, 4K…). You can also **save your own size presets**.
 
 ### Transform and adjust
+* **Crop a single image layer** without losing pixels: set the margins under *Image → Crop layer*.
 * **Crop** with aspect presets (free, 1:1, 4:3, 3:2, 16:9, 9:16, 4:5) and a rule-of-thirds overlay.
 * **Image size** scales the content. **Canvas size** keeps the content scale and has a 9-point anchor.
 * **Trim** fits the canvas to the content or the selection.
@@ -204,7 +205,6 @@ The output of `npm run build` is static. The repository includes a GitHub Action
 * **AI model download**: the first time you remove a background, the browser downloads the model (about 40–170 MB depending on the quality setting) from `staticimgly.com`, and then caches it. If that host is blocked, or you are offline, the app uses the quick colour-based removal instead. That works well for plain backgrounds (product shots, screenshots, studio photos) but not for complex scenes.
 * **Object removal** is a classic content-aware fill, not a generative model. It works very well for objects on fairly uniform or textured backgrounds (skies, walls, grass, UI backgrounds). It works less well on large objects in front of complex structure. Large areas are processed at reduced resolution for speed.
 * **Click-to-segment** (SAM-style) selection isn't included. Smart selection uses AI subject detection plus magic wand, lasso and brush.
-* **Cropping a single image layer** is not available; *Crop* crops the whole canvas. To trim one layer, use a selection with *Extract* or *Erase from layer*.
 * **Editing very large images** (above about 50 MP) can be slow on low-end devices. WebGL filters are limited by the GPU's maximum texture size.
 * **Clipboard**: writing images to the clipboard needs a secure context (https or localhost) and a supporting browser. Copying layers inside the editor always works.
 * **Licensing**: `@imgly/background-removal` is AGPL-3.0. If you distribute a modified version of this app publicly, keep the source available, or swap in a different model.

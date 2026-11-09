@@ -248,6 +248,7 @@ function ObjectSections({ a, multi }: { a: any; multi: boolean }) {
           <div className="muted small">
             Source {((a as any)._originalElement?.naturalWidth || a.width)} × {((a as any)._originalElement?.naturalHeight || a.height)}px
           </div>
+          <ImageCrop a={a} />
           <div className="btn-row">
             <button className="btn" onClick={() => useStore.setState({ rightTab: 'adjust' })}>Adjustments…</button>
             <button className="btn" onClick={() => editor.trimToContent()}>Fit canvas to image</button>
@@ -256,6 +257,28 @@ function ObjectSections({ a, multi }: { a: any; multi: boolean }) {
         </Section>
       )}
       {isGroup && (a as any).layerType === 'counter' && <CounterSection a={a} />}
+    </>
+  );
+}
+
+function ImageCrop({ a }: { a: any }) {
+  const el = a._originalElement || a.getElement();
+  const nw = el?.naturalWidth || el?.width || a.width;
+  const nh = el?.naturalHeight || el?.height || a.height;
+  const cur = { left: a.cropX || 0, top: a.cropY || 0, right: nw - (a.cropX || 0) - a.width, bottom: nh - (a.cropY || 0) - a.height };
+  const upd = (k: keyof typeof cur, v: number) => editor.cropImageLayer(a, { ...cur, [k]: v });
+  return (
+    <>
+      <div className="sub-title">Crop layer (non-destructive, source px)</div>
+      <div className="xywh">
+        <NumberInput label="Left" testId="crop-left" value={cur.left} min={0} onChange={(v) => upd('left', v)} />
+        <NumberInput label="Right" value={cur.right} min={0} onChange={(v) => upd('right', v)} />
+        <NumberInput label="Top" value={cur.top} min={0} onChange={(v) => upd('top', v)} />
+        <NumberInput label="Bottom" value={cur.bottom} min={0} onChange={(v) => upd('bottom', v)} />
+      </div>
+      {(cur.left || cur.top || cur.right || cur.bottom) ? (
+        <button className="link" onClick={() => editor.cropImageLayer(a, { left: 0, top: 0, right: 0, bottom: 0 })}>Reset crop</button>
+      ) : null}
     </>
   );
 }

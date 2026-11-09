@@ -2016,6 +2016,28 @@ export class Editor {
     this.commit('Delete pixels');
   }
 
+  /** Non-destructive crop of an image layer: margins in source pixels */
+  cropImageLayer(img: FabricImage, m: { left: number; top: number; right: number; bottom: number }) {
+    const el: any = (img as any)._originalElement || img.getElement();
+    const nw = el.naturalWidth || el.width,
+      nh = el.naturalHeight || el.height;
+    const l = Math.max(0, Math.min(nw - 1, Math.round(m.left)));
+    const t = Math.max(0, Math.min(nh - 1, Math.round(m.top)));
+    const w = Math.max(1, nw - l - Math.max(0, Math.round(m.right)));
+    const h = Math.max(1, nh - t - Math.max(0, Math.round(m.bottom)));
+    const toScene = util.multiplyTransformMatrices(img.calcTransformMatrix(), [1, 0, 0, 1, -img.width / 2 - (img.cropX || 0), -img.height / 2 - (img.cropY || 0)]);
+    const tl = util.transformPoint(new Point(l, t), toScene);
+    img.set({ cropX: l, cropY: t, width: w, height: h });
+    img.setPositionByOrigin(tl, 'left', 'top');
+    const r = (img as AnyObj).cornerRadius;
+    if (r) this.setCornerRadius(img as AnyObj, r);
+    img.setCoords();
+    img.dirty = true;
+    this.canvas.requestRenderAll();
+    this.bumpSel();
+    this.commitDebounced();
+  }
+
   async replaceImageElement(img: FabricImage, blob: Blob) {
     const url = this.registerBlob(blob);
     const { width, height, cropX, cropY } = img;
