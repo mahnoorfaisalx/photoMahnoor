@@ -1,3 +1,4 @@
+import { getItem, setItem } from '../lib/storage';
 import { useEffect, useMemo, useState } from 'react';
 import { editor } from '../editor/editor';
 import { useStore } from '../store';
@@ -274,7 +275,7 @@ function BatchDialog({ onClose }: { onClose: () => void }) {
   const [files, setFiles] = useState<File[]>([]);
   const [r, setR] = useState<BatchRecipe>(() => {
     try {
-      return { ...DEFAULT_RECIPE, ...JSON.parse(localStorage.getItem('pm.lastBatch') || '{}') };
+      return { ...DEFAULT_RECIPE, ...JSON.parse(getItem('pm.lastBatch') || '{}') };
     } catch {
       return DEFAULT_RECIPE;
     }
@@ -297,7 +298,7 @@ function BatchDialog({ onClose }: { onClose: () => void }) {
     return () => { cancel = true; clearTimeout(t); };
   }, [files, r]);
   const run = async () => {
-    localStorage.setItem('pm.lastBatch', JSON.stringify(r));
+    setItem('pm.lastBatch', JSON.stringify(r));
     setResult(null);
     const res = await runBatch(files, r, (done, total, current) => setProgress({ done, total, current }));
     setProgress(null);

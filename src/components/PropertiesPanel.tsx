@@ -300,7 +300,9 @@ function TextSection({ a }: { a: any }) {
   const set = (p: Record<string, any>, commit: 'now' | 'debounce' = 'debounce') => editor.setProps(p, { commit });
   const [styles, setStyles] = useState(customTextStyles.list());
   const applyStyle = (props: Record<string, any>) => {
-    const { shadow, ...rest } = props;
+    // keep the current font size so styles don't resize existing text
+    const { shadow, fontSize: _fs, ...rest } = props;
+    void _fs;
     set({ stroke: null, strokeWidth: 0, backgroundColor: '', fontWeight: 'normal', ...rest, shadow: shadow ?? null }, 'now');
     a.fillMode = undefined;
   };

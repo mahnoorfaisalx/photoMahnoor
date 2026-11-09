@@ -1,3 +1,4 @@
+import { getItem } from '../lib/storage';
 // AI features: background removal, subject selection, background replacement.
 // Primary engine: @imgly/background-removal (ISNet via onnxruntime-web, runs fully in the browser,
 // model files fetched from the imgly CDN on first use). Fallback: local colour-key segmentation.
@@ -17,7 +18,7 @@ function setBusy(message: string, progress?: number) {
 /** Run the AI model on a blob. Returns a PNG blob with alpha, or throws. */
 export async function aiRemoveBackground(blob: Blob): Promise<Blob> {
   const mod = await import('@imgly/background-removal');
-  const quality = (localStorage.getItem('pm.aiModel') as any) || 'isnet_fp16';
+  const quality = (getItem('pm.aiModel') as any) || 'isnet_fp16';
   return mod.removeBackground(blob, {
     model: quality,
     output: { format: 'image/png' },

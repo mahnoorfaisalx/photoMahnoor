@@ -1,3 +1,4 @@
+import { getItem, setItem } from '../lib/storage';
 import { useState } from 'react';
 import { editor } from '../editor/editor';
 import { useStore } from '../store';
@@ -9,7 +10,7 @@ export function AIPanel() {
   const hasPx = useStore((s) => s.hasPixelSelection);
   const setTool = useStore((s) => s.setTool);
   const d = useStore((s) => s.setDialog);
-  const [model, setModel] = useState(localStorage.getItem('pm.aiModel') || 'isnet_fp16');
+  const [model, setModel] = useState(getItem('pm.aiModel') || 'isnet_fp16');
   return (
     <div className="panel-scroll" data-testid="ai-panel">
       <Section title="Background">
@@ -48,7 +49,7 @@ export function AIPanel() {
           value={model}
           onChange={(v) => {
             setModel(v);
-            localStorage.setItem('pm.aiModel', v);
+            setItem('pm.aiModel', v);
           }}
           options={[
             { value: 'isnet_quint8', label: 'Fast', title: '~40MB, quickest' },
